@@ -1,0 +1,1055 @@
+<title>Olimp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: dark phone column with soft green glows. Glass cards, serif headlines with one italic green word,
+   balance card as the hero, floating tab bar. Three tabs: Кабінет, Запис, Прогрес; packs open from Кабінет.
+   Palette: black, white, one green. */
+:root {
+  --bg: #060706;
+  --fg: #F4F6F1;
+  --muted: #9BA298;
+  --faint: #6E756B;
+  --card: rgba(255, 255, 255, 0.055);
+  --card-2: rgba(255, 255, 255, 0.09);
+  --line: rgba(255, 255, 255, 0.11);
+  --accent: #6BD43B;
+  --accent-ink: #8EE35A;
+  --accent-fg: #06110A;
+  --accent-soft: rgba(107, 212, 59, 0.16);
+  --grad: linear-gradient(135deg, #9BEA6A 0%, #3DBD45 100%);
+  --danger: #FF8A80;
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-body: Manrope, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.45 var(--font-body); }
+button, select, input { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent-ink); outline-offset: 2px; }
+
+.app {
+  height: 100%; max-width: 440px; margin: 0 auto; display: flex; flex-direction: column; position: relative; overflow: hidden;
+  background:
+    radial-gradient(120% 38% at 0% 0%, rgba(107, 212, 59, 0.22), transparent 62%),
+    radial-gradient(90% 36% at 100% 22%, rgba(255, 255, 255, 0.07), transparent 62%),
+    radial-gradient(110% 40% at 50% 100%, rgba(47, 174, 74, 0.16), transparent 62%),
+    var(--bg);
+}
+@media (min-width: 441px) { .app { border-inline: 1px solid var(--line); } }
+
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 20px 0; }
+.brand { font: 700 18px/1 var(--font-display); letter-spacing: 0.04em; }
+.brand small { font: 500 12px/1 var(--font-body); color: var(--muted); letter-spacing: 0; margin-left: 8px; }
+.gate { min-height: 36px; padding: 0 14px; border: 1px solid var(--line); border-radius: 99px; background: var(--card); font-size: 12px; font-weight: 600; color: var(--muted); flex-shrink: 0; }
+
+main { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 20px 24px; }
+p { margin: 0; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.eyebrow { font: 700 11px/1 var(--font-body); letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.h1 { font: 600 34px/1.08 var(--font-display); margin: 10px 0 0; text-wrap: balance; }
+.h1 em, .acc { font-style: italic; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; padding-right: 0.04em; }
+.h2 { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 30px 0 12px; font: 600 22px/1.2 var(--font-display); }
+.h2 span { font: 600 13px/1.2 var(--font-body); color: var(--muted); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 24px; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+.stack > * + * { margin-top: 10px; }
+
+/* Greeting */
+.hello { display: flex; align-items: center; gap: 12px; }
+.hello .av { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; font: 600 19px/1 var(--font-display); background: linear-gradient(var(--bg), var(--bg)) padding-box, var(--grad) border-box; border: 2px solid transparent; }
+.hello .t { flex: 1; min-width: 0; }
+.hello .t small { display: block; color: var(--muted); font-size: 13px; }
+.hello .t b { display: block; font: 600 22px/1.15 var(--font-display); }
+.icon-btn { position: relative; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); display: grid; place-items: center; }
+.icon-btn svg { width: 20px; height: 20px; }
+.icon-btn .dot { position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+
+/* Balance card */
+.bal { position: relative; margin-top: 16px; padding: 22px 20px 20px; border-radius: 28px; border: 1px solid var(--line); overflow: hidden;
+  background: radial-gradient(90% 90% at 100% 0%, rgba(155, 234, 106, 0.28), transparent 60%), linear-gradient(160deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03)); }
+.bal .top-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bal .num { font: 600 66px/0.95 var(--font-display); font-variant-numeric: lining-nums tabular-nums; margin-top: 18px; }
+.bal .word { font: italic 600 34px/1.1 var(--font-display); }
+.bal .sub { margin-top: 6px; color: var(--muted); font-size: 14px; }
+.bal svg.plate { position: absolute; right: 14px; top: 34px; width: 112px; height: 112px; }
+.segs { display: flex; gap: 5px; margin-top: 20px; }
+.segs i { flex: 1; height: 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.12); }
+.segs i.free { background: var(--grad); }
+.segs i.booked { background: transparent; border: 1.5px dashed var(--accent); }
+.segs i.done { background: rgba(255, 255, 255, 0.28); }
+.segs i.pulse { animation: settle 0.5s ease-out; }
+@keyframes settle { from { transform: scaleY(2.2); } to { transform: scaleY(1); } }
+.meta { display: flex; justify-content: space-between; gap: 12px; margin-top: 16px; color: var(--muted); font-size: 13px; }
+.meta span { display: inline-flex; align-items: center; gap: 6px; }
+.meta svg { width: 16px; height: 16px; flex-shrink: 0; }
+.go { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; min-height: 58px; margin-top: 18px; padding: 0 10px 0 22px; border: 0; border-radius: 99px; background: var(--grad); color: var(--accent-fg); font-weight: 800; font-size: 16px; box-shadow: 0 10px 30px rgba(107, 212, 59, 0.25); }
+.go i { width: 38px; height: 38px; border-radius: 50%; background: rgba(6, 17, 10, 0.16); display: grid; place-items: center; }
+.go svg { width: 18px; height: 18px; }
+.go[disabled] { background: var(--card-2); color: var(--muted); box-shadow: none; cursor: not-allowed; }
+
+/* Stat tiles */
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+.stat { padding: 14px; border-radius: 22px; }
+.stat .ic { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent-ink); }
+.stat .ic svg { width: 18px; height: 18px; }
+.stat .ic.w { background: rgba(255, 255, 255, 0.1); color: var(--fg); }
+.stat b { display: block; margin-top: 14px; font: 600 28px/1 var(--font-display); font-variant-numeric: lining-nums; }
+.stat span { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.25; }
+
+/* Training cards */
+.tcard { padding: 16px; }
+.tcard .head { display: flex; gap: 14px; align-items: flex-start; }
+.tile { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; flex-shrink: 0; color: var(--accent-fg); background: var(--grad); }
+.tile svg { width: 28px; height: 28px; }
+.tile.t-func { background: linear-gradient(135deg, #F6F8F2, #C9D1C2); }
+.tile.t-stretch { background: linear-gradient(135deg, #2F5A2C, #16301A); color: #CFF5B8; }
+.tile.date { flex-direction: column; gap: 0; }
+.tile.date b { font: 700 28px/1 var(--font-display); }
+.tile.date small { font: 800 11px/1 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; margin-top: 3px; }
+.tcard .info { flex: 1; min-width: 0; }
+.tcard .title { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.tcard .title b { font-size: 18px; font-weight: 800; line-height: 1.2; }
+.tcard .line { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; color: var(--muted); font-size: 13px; }
+.tcard .line span { display: inline-flex; align-items: center; gap: 6px; }
+.tcard .line svg { width: 15px; height: 15px; flex-shrink: 0; }
+.pill { display: inline-block; padding: 5px 11px; border-radius: 99px; font-size: 12px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.pill.planned { background: rgba(255, 255, 255, 0.14); color: var(--fg); }
+.pill.done { background: var(--accent-soft); color: var(--accent-ink); }
+.pill.cancelled { background: rgba(255, 255, 255, 0.06); color: var(--faint); }
+.pill.free { background: var(--grad); color: var(--accent-fg); }
+.pill.booked { background: rgba(255, 255, 255, 0.1); color: var(--fg); }
+.pill.closed { border: 1px solid var(--line); color: var(--muted); }
+.note { margin-top: 12px; padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.07); font-size: 14px; line-height: 1.4; }
+.note i { font: italic 600 15px var(--font-display); color: var(--accent-ink); }
+.acts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+.ghost { min-height: 48px; padding: 0 14px; border: 1px solid var(--line); border-radius: 99px; background: var(--card); font-weight: 700; font-size: 14px; }
+.ghost.danger { color: var(--danger); }
+.ghost.solid { background: var(--grad); border-color: transparent; color: var(--accent-fg); }
+details.ex { margin-top: 10px; }
+details.ex summary { list-style: none; cursor: pointer; display: flex; align-items: center; gap: 6px; min-height: 36px; color: var(--muted); font-size: 13px; font-weight: 600; }
+details.ex summary::-webkit-details-marker { display: none; }
+details.ex summary svg { width: 14px; height: 14px; transition: transform 0.15s; }
+details.ex[open] summary svg { transform: rotate(180deg); }
+.lifts { margin: 4px 0 2px; padding: 0; list-style: none; display: grid; gap: 8px; }
+.lifts li { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.lifts li span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; text-align: right; }
+
+.empty { padding: 20px; border: 1px dashed var(--line); border-radius: 24px; color: var(--muted); text-align: center; }
+
+/* Trainer pick */
+.pick { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px 16px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); text-align: left; }
+.pick .ava { width: 46px; height: 46px; border-radius: 15px; display: grid; place-items: center; background: var(--grad); color: var(--accent-fg); font: 700 15px/1 var(--font-display); flex-shrink: 0; }
+.pick b { display: block; font-weight: 800; }
+.pick small { display: block; color: var(--muted); font-size: 13px; }
+.pick .chk { position: absolute; top: 12px; right: 12px; width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--line); display: grid; place-items: center; }
+.pick .chk svg { width: 14px; height: 14px; opacity: 0; }
+.pick[aria-pressed="true"] { border: 1.5px solid var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.pick[aria-pressed="true"] .chk { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); }
+.pick[aria-pressed="true"] .chk svg { opacity: 1; }
+.pick .txt { min-width: 0; padding-right: 28px; }
+
+/* Segmented control */
+.seg { display: flex; padding: 5px; gap: 4px; border: 1px solid var(--line); border-radius: 99px; background: var(--card); }
+.seg button { flex: 1; min-height: 46px; border: 0; border-radius: 99px; background: transparent; font-weight: 700; font-size: 14px; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--grad); color: var(--accent-fg); }
+.chips { display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 0 20px 2px; scrollbar-width: none; }
+.chips::-webkit-scrollbar { display: none; }
+.chip { flex: 0 0 auto; min-height: 44px; padding: 0 20px; border: 1px solid var(--line); border-radius: 99px; background: var(--card); font-weight: 700; font-size: 14px; }
+.chip[aria-pressed="true"] { background: var(--grad); border-color: transparent; color: var(--accent-fg); }
+
+/* Dates and times */
+.dates { display: flex; gap: 8px; overflow-x: auto; margin: 0 -20px; padding: 2px 20px 6px; scrollbar-width: none; }
+.dates::-webkit-scrollbar { display: none; }
+.dchip { flex: 0 0 62px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 0 10px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); }
+.dchip small { font: 800 11px/1 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.dchip b { font: 600 24px/1.1 var(--font-display); font-variant-numeric: lining-nums; }
+.dchip i { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+.dchip i.none { background: transparent; }
+.dchip em { font: 700 10px/6px var(--font-body); font-style: normal; color: var(--faint); height: 6px; }
+.dchip.dim { opacity: 0.5; }
+.dchip[aria-pressed="true"] { background: var(--grad); border-color: transparent; color: var(--accent-fg); opacity: 1; box-shadow: 0 8px 22px rgba(107, 212, 59, 0.28); }
+.dchip[aria-pressed="true"] small { color: var(--accent-fg); opacity: 0.75; }
+.dchip[aria-pressed="true"] i { background: var(--accent-fg); }
+.dchip[aria-pressed="true"] em { color: var(--accent-fg); }
+.tgroup { margin-top: 14px; }
+.tgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.tbtn { min-height: 52px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); font: 800 15px/1 var(--font-body); font-variant-numeric: tabular-nums; }
+.tbtn[aria-pressed="true"] { background: var(--grad); border-color: transparent; color: var(--accent-fg); }
+.tbtn.mine[disabled] { border: 1.5px dashed var(--accent); color: var(--accent-ink); }
+.banner { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 16px; padding: 14px 16px; }
+.banner p { font-size: 14px; }
+.banner b { font-weight: 800; }
+
+.taken { margin-top: 16px; padding: 18px; border-color: rgba(255, 138, 128, 0.55); }
+.taken b { display: block; font: 600 22px/1.2 var(--font-display); color: var(--danger); }
+.taken p { margin-top: 8px; font-size: 14px; }
+.demo { margin-top: 18px; padding: 12px 14px; border: 1px dashed var(--line); border-radius: 16px; color: var(--muted); font-size: 13px; }
+
+/* Sticky action bar */
+.cta { padding: 10px 20px 4px; background: linear-gradient(to top, var(--bg) 70%, transparent); }
+.cta[hidden] { display: none; }
+.cta .go { margin-top: 0; justify-content: center; padding: 0 22px; }
+.cta .info { margin-bottom: 8px; text-align: center; color: var(--muted); font-size: 13px; }
+
+/* Progress */
+.cal { margin-top: 14px; padding: 20px 18px 16px; }
+.cal .hd { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.cal .hd b { font: 600 24px/1.1 var(--font-display); }
+.cal .hd span { color: var(--muted); font-size: 13px; font-weight: 600; }
+.grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px 4px; text-align: center; }
+.grid7 .wd { font: 700 11px/1 var(--font-body); letter-spacing: 0.1em; color: var(--faint); padding-bottom: 6px; }
+.grid7 .dn { display: grid; place-items: center; height: 40px; border-radius: 14px; font: 600 16px/1 var(--font-display); font-variant-numeric: lining-nums; color: var(--muted); }
+.grid7 .dn.done { background: var(--grad); color: var(--accent-fg); box-shadow: 0 6px 18px rgba(107, 212, 59, 0.25); }
+.grid7 .dn.planned { border: 1.5px dashed var(--accent); color: var(--accent-ink); }
+.grid7 .dn.cancelled { background: rgba(255, 255, 255, 0.05); text-decoration: line-through; color: var(--faint); }
+.grid7 .dn.today { box-shadow: inset 0 0 0 1.5px var(--fg); color: var(--fg); }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 4px; vertical-align: -2px; margin-right: 6px; box-sizing: border-box; }
+.legend .l-done { background: var(--grad); }
+.legend .l-planned { border: 1.5px dashed var(--accent); }
+.legend .l-cancelled { background: rgba(255, 255, 255, 0.12); }
+
+/* Activity chart */
+.chart { padding: 18px; }
+.chart .big { margin-top: 8px; font: 600 30px/1 var(--font-display); font-variant-numeric: lining-nums; }
+.chart .big small { font: 500 17px var(--font-display); margin-left: 4px; color: var(--muted); }
+.bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; align-items: end; height: 150px; margin-top: 16px; border-bottom: 1px solid var(--line); }
+.bar { display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; height: 100%; }
+.bar .n { font-weight: 800; font-size: 13px; color: var(--muted); }
+.bar .col { width: 100%; max-width: 36px; display: flex; flex-direction: column; justify-content: flex-end; gap: 3px; }
+.bar .d { border-radius: 12px; background: linear-gradient(180deg, rgba(155, 234, 106, 0.85), rgba(61, 189, 69, 0.55)); }
+.bar .p { border-radius: 12px; border: 1.5px dashed var(--accent); background: repeating-linear-gradient(135deg, rgba(107, 212, 59, 0.22) 0 4px, transparent 4px 8px); }
+.bar .z { height: 6px; border-radius: 4px; background: rgba(255, 255, 255, 0.1); }
+.labels { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-top: 8px; text-align: center; font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.labels b { display: inline-block; padding: 3px 9px; border-radius: 99px; background: var(--grad); color: var(--accent-fg); font-size: 11px; }
+.chart .legend { margin-top: 14px; }
+
+/* Quick access and promo */
+.quick { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.quick button { display: flex; flex-direction: column; align-items: center; gap: 8px; background: transparent; border: 0; font-size: 13px; font-weight: 700; }
+.quick .q { width: 64px; height: 64px; border-radius: 22px; display: grid; place-items: center; border: 1px solid var(--line); background: var(--card); color: var(--accent-ink); }
+.quick .q.w { color: var(--fg); }
+.quick .q svg { width: 26px; height: 26px; }
+.promo { position: relative; margin-top: 18px; padding: 22px 20px; border-radius: 28px; border: 1px solid var(--line); overflow: hidden;
+  background: radial-gradient(80% 100% at 100% 100%, rgba(107, 212, 59, 0.3), transparent 65%), var(--card); }
+.promo .off { font: 600 38px/1 var(--font-display); }
+.promo .off small { font: 800 12px var(--font-body); letter-spacing: 0.14em; color: var(--muted); margin-left: 6px; }
+.promo h3 { margin: 10px 0 0; font-size: 18px; font-weight: 800; }
+.promo p { margin-top: 4px; color: var(--muted); font-size: 14px; max-width: 60%; }
+.promo .ghost { margin-top: 14px; background: rgba(255, 255, 255, 0.92); color: #0B0B0B; border: 0; }
+.promo svg { position: absolute; right: 8px; bottom: 14px; width: 130px; height: 90px; }
+.quote { margin: 30px 8px 6px; text-align: center; font: italic 500 20px/1.3 var(--font-display); color: var(--muted); }
+.foot { margin-top: 24px; font-size: 12px; color: var(--faint); text-align: center; }
+
+/* Forms and trainer cabinet */
+.codein { width: 100%; box-sizing: border-box; min-height: 60px; margin-top: 18px; padding: 0 20px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); color: var(--fg); font: 700 20px/1 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; }
+.codein::placeholder { color: var(--faint); }
+.err { margin-top: 10px; color: var(--danger); font-size: 14px; }
+.form .go { margin-top: 14px; justify-content: center; padding: 0 22px; }
+.strip { display: flex; gap: 8px; overflow-x: auto; margin: 16px -20px 0; padding: 2px 20px 6px; scrollbar-width: none; }
+.strip::-webkit-scrollbar { display: none; }
+.cday { flex: 0 0 62px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 12px 0 10px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); }
+.cday small { font: 800 11px/1 var(--font-body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.cday b { font: 600 24px/1.1 var(--font-display); font-variant-numeric: lining-nums; }
+.cday i { font-style: normal; font-size: 11px; color: var(--muted); min-height: 14px; }
+.cday[aria-pressed="true"] { background: var(--grad); border-color: transparent; color: var(--accent-fg); }
+.cday[aria-pressed="true"] small, .cday[aria-pressed="true"] i { color: var(--accent-fg); opacity: 0.8; }
+.cday.off b { text-decoration: line-through; opacity: 0.55; }
+.srow { display: grid; grid-template-columns: 54px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; min-height: 64px; padding: 10px 16px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); text-align: left; }
+.srow .t { font: 600 20px/1 var(--font-display); font-variant-numeric: lining-nums; }
+.srow .n { min-width: 0; }
+.srow .n b { display: block; font-weight: 800; }
+.srow .n span { color: var(--muted); font-size: 13px; }
+.srow.is-booked { cursor: default; }
+.srow.is-closed .t { color: var(--faint); text-decoration: line-through; }
+.cbtns { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.cbtns .ghost { flex: 1 1 auto; }
+.notice { margin-top: 14px; padding: 18px; border: 1px dashed var(--line); border-radius: 22px; color: var(--muted); }
+.wk { display: grid; grid-template-columns: 34px 52px minmax(0, 1fr); gap: 10px; align-items: center; min-height: 62px; padding: 6px 16px; border: 1px solid var(--line); border-radius: 22px; background: var(--card); }
+.wk .d { font-weight: 800; }
+.wk .hrs { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.wk .hrs.off { color: var(--muted); }
+select { min-height: 44px; padding: 0 10px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 255, 255, 0.07); color: var(--fg); font-variant-numeric: tabular-nums; }
+select option { color: #0B0B0B; background: #FFFFFF; }
+.sw { width: 50px; height: 30px; border-radius: 99px; border: 1px solid var(--line); background: rgba(255, 255, 255, 0.08); position: relative; padding: 0; }
+.sw::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--muted); transition: transform 0.15s; }
+.sw[aria-checked="true"] { background: var(--grad); border-color: transparent; }
+.sw[aria-checked="true"]::after { transform: translateX(20px); background: var(--accent-fg); }
+.addoff { display: flex; gap: 8px; margin-top: 10px; }
+.addoff select { flex: 1; min-width: 0; }
+.addoff .ghost { flex: 0 0 auto; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; }
+.row .when { font-weight: 800; }
+.row .what { color: var(--muted); font-size: 13px; }
+.row .sum { font: 600 20px/1 var(--font-display); font-variant-numeric: lining-nums; white-space: nowrap; }
+.link { min-height: 44px; padding: 0 10px; border: 0; background: transparent; font-weight: 700; color: var(--danger); border-radius: 12px; }
+
+/* Packs */
+.pack { padding: 18px; }
+.pack .top2 { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.pack .n { font: 600 40px/1 var(--font-display); font-variant-numeric: lining-nums; }
+.pack .n small { font: italic 500 20px var(--font-display); margin-left: 6px; color: var(--muted); }
+.pack .price { margin-top: 12px; font: 700 22px/1 var(--font-body); }
+.pack .per { margin-top: 4px; color: var(--muted); font-size: 13px; }
+.pack .pay { margin-top: 14px; padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.07); font-size: 14px; }
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0; border: 0; background: transparent; color: var(--muted); font-weight: 700; font-size: 14px; }
+.back svg { width: 16px; height: 16px; }
+
+/* Tab bar */
+nav { display: grid; gap: 4px; margin: 6px 14px 12px; padding: 6px; border-radius: 28px; border: 1px solid var(--line); background: rgba(22, 26, 21, 0.86); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+nav[hidden] { display: none; }
+nav button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; min-height: 56px; border: 0; border-radius: 22px; background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; }
+nav button[aria-current="page"] { background: rgba(107, 212, 59, 0.2); color: var(--accent-ink); }
+nav svg { width: 22px; height: 22px; }
+
+.toast { position: absolute; left: 20px; right: 20px; bottom: 90px; padding: 14px 16px; border-radius: 20px; background: var(--fg); color: #0B0B0B; font-weight: 700; font-size: 14px; z-index: 5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .segs i.pulse { animation: none; }
+  details.ex summary svg, .sw::after { transition: none; }
+}
+@media (max-width: 360px) {
+  .bal .num { font-size: 54px; }
+  .bal svg.plate { width: 88px; height: 88px; }
+  .stat b { font-size: 24px; }
+}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">Olimp<small id="coach-line"></small></div>
+    <button type="button" class="gate" id="gate" data-action="gate">Для тренерів</button>
+  </header>
+
+  <main id="main">
+    <section id="tab-home" aria-label="Кабінет"></section>
+    <section id="tab-book" aria-label="Запис" hidden></section>
+    <section id="tab-history" aria-label="Прогрес" hidden></section>
+    <section id="tab-prices" aria-label="Пакети" hidden></section>
+    <section id="tab-code" aria-label="Вхід для тренерів" hidden></section>
+    <section id="tab-cschedule" aria-label="Розклад тренера" hidden></section>
+    <section id="tab-chours" aria-label="Графік тренера" hidden></section>
+    <section id="tab-cpayments" aria-label="Оплати тренера" hidden></section>
+  </main>
+
+  <div class="cta" id="cta" hidden></div>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  <nav id="nav" aria-label="Розділи"></nav>
+</div>
+
+<script>
+(function () {
+  var WD = ['нд', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+  var WDU = ['НД', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+  var WDF = ['Неділя', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота'];
+  var WDL = ['неділя', 'понеділок', 'вівторок', 'середа', 'четвер', 'п’ятниця', 'субота'];
+  var MON = ['січня', 'лютого', 'березня', 'квітня', 'травня', 'червня', 'липня', 'серпня', 'вересня', 'жовтня', 'листопада', 'грудня'];
+  var MONS = ['січ', 'лют', 'бер', 'кві', 'тра', 'чер', 'лип', 'сер', 'вер', 'жов', 'лис', 'гру'];
+  var MON_NOM = ['Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень', 'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'];
+  var ORDER = [1, 2, 3, 4, 5, 6, 0];
+  var ME = 'Олена К.';
+  var NAMES = ['Ірина М.', 'Андрій П.', 'Софія Л.', 'Денис Б.', 'Марина Т.', 'Олег Р.'];
+  var SINGLE = 800;
+  var TYPES = {
+    'Силове': { dur: 60, place: 'зал №2', price: 800, cls: '', note: 'Присідання, жими, тяги. Вага підбирається під вас.' },
+    'Функціональне': { dur: 60, place: 'зал №1', price: 800, cls: 't-func', note: 'Кругові серії з гирями, власною вагою й еспандерами.' },
+    'Розтяжка': { dur: 45, place: 'зал №1', price: 600, cls: 't-stretch', note: 'Мобільність суглобів, розтяжка, дихання.' }
+  };
+  var PACKS = [
+    { n: 5, price: 3500, days: 45 },
+    { n: 10, price: 6000, days: 75, best: true },
+    { n: 20, price: 10400, days: 120 }
+  ];
+
+  var ICON = {
+    'Силове': '<path d="M6.5 7v10M3.5 9.5v5M17.5 7v10M20.5 9.5v5M6.5 12h11"/>',
+    'Функціональне': '<path d="M3 12h4l2.5-6 4 12 2.5-6H21"/>',
+    'Розтяжка': '<circle cx="12" cy="5" r="2"/><path d="M12 8v5M6 10l6 2 6-2M9 21l3-8 3 8"/>',
+    cal: '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
+    calplus: '<rect x="3.5" y="5" width="17" height="15" rx="3"/><path d="M8 3v4M16 3v4M12 11v6M9 14h6"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    pin: '<path d="M12 21s7-6.2 7-11.5A7 7 0 0 0 5 9.5C5 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 21c1-4.2 4-6 7.5-6s6.5 1.800 7.500 6"/>',
+    check: '<path d="M5 12.5l4.500 4.500L19 7.500"/>',
+    flame: '<path d="M12 3c1 3.500 5 5.500 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 .300 1.500 1 2 2 2 0-3-1-5 1-8z"/>',
+    gift: '<rect x="3.5" y="9" width="17" height="11" rx="2"/><path d="M12 9v11M3.500 13h17M12 9c-3 0-4.500-4-1.500-4.500C12 4.300 12 7 12 9zm0 0c3 0 4.500-4 1.500-4.500C12 4.300 12 7 12 9z"/>',
+    bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.500 2h-15zM10 20.500h4"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    chev: '<path d="M6 9l6 6 6-6"/>',
+    back: '<path d="M15 5l-7 7 7 7"/>',
+    tag: '<path d="M3.500 12.500V4.500h8l9 9-8 8z"/><circle cx="8" cy="9" r="1.200"/>',
+    coach: '<circle cx="9" cy="8" r="3.500"/><path d="M2.500 20c.800-3.600 3.300-5.200 6.500-5.200M16 11l2 2 4-4"/>',
+    list: '<path d="M5 6h14M5 12h14M5 18h9"/>',
+    gear: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    coins: '<circle cx="9" cy="12" r="6"/><path d="M15.500 6.400a6 6 0 0 1 0 11.200"/>',
+    home: '<circle cx="12" cy="8" r="4"/><path d="M4.500 21c1-4.200 4-6 7.500-6s6.500 1.800 7.500 6"/>'
+  };
+  function svg(name, extra) {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"' + (extra || '') + '>' + ICON[name] + '</svg>';
+  }
+
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var nowHour = new Date().getHours();
+  function addDays(d, n) { var x = new Date(d); x.setDate(x.getDate() + n); x.setHours(0, 0, 0, 0); return x; }
+  function key(d) { return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+  function parse(k) { var p = k.split('-').map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+  function fmt(d) { return WD[d.getDay()] + ', ' + d.getDate() + ' ' + MON[d.getMonth()]; }
+  function fmtShort(d) { return d.getDate() + ' ' + MON[d.getMonth()]; }
+  function money(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₴'; }
+  function hash(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+  function plural(n, one, few, many) {
+    var m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return one;
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+    return many;
+  }
+  function toMin(s) { var p = s.split(':'); return parseInt(p[0], 10) * 60 + parseInt(p[1], 10); }
+  function fromMin(m) { return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+  function weekStart(d) { var x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+  function W(from, to) { return { on: true, from: from, to: to }; }
+  function O() { return { on: false, from: '09:00', to: '14:00' }; }
+
+  /* Графік кожного тренера: його налаштовує сам тренер, а клієнти бачать лише те, що він залишив вільним. */
+  var TRAINERS = [
+    { id: 'maksym', name: 'Максим Гончар', short: 'Максим', with: 'з Максимом', init: 'МГ', code: 'MAKS-4821', spec: 'Силові та функціональні тренування', types: ['Силове', 'Функціональне'],
+      sched: { slotMin: 60, tpl: { 0: O(), 1: W('08:00', '20:00'), 2: W('08:00', '20:00'), 3: W('08:00', '20:00'), 4: W('08:00', '20:00'), 5: W('08:00', '20:00'), 6: W('09:00', '14:00') }, off: [key(addDays(today, 9))], closed: {} } },
+    { id: 'iryna', name: 'Ірина Савчук', short: 'Ірина', with: 'з Іриною', init: 'ІС', code: 'IRYNA-3057', spec: 'Розтяжка, мобільність, функціональні', types: ['Розтяжка', 'Функціональне'],
+      sched: { slotMin: 60, tpl: { 0: O(), 1: W('09:00', '18:00'), 2: W('09:00', '18:00'), 3: W('09:00', '18:00'), 4: W('09:00', '18:00'), 5: W('09:00', '18:00'), 6: O() }, off: [], closed: {} } },
+    { id: 'oleksii', name: 'Олексій Бондар', short: 'Олексій', with: 'з Олексієм', init: 'ОБ', code: 'OLEKS-7714', spec: 'Силові, підготовка до змагань', types: ['Силове'],
+      sched: { slotMin: 60, tpl: { 0: O(), 1: O(), 2: W('12:00', '21:00'), 3: W('12:00', '21:00'), 4: W('12:00', '21:00'), 5: W('12:00', '21:00'), 6: W('12:00', '21:00') }, off: [], closed: {} } }
+  ];
+  TRAINERS[0].sched.closed[key(addDays(today, 1))] = ['12:00'];
+  function tr(id) { return TRAINERS.filter(function (x) { return x.id === id; })[0]; }
+  function sch(id) { return tr(id).sched; }
+
+  // Приклади для прототипу: у справжній версії це прийде з бекенду.
+  var HIST = [
+    { ago: 3, type: 'Силове', time: '18:00', st: 'done', note: 'Гарна техніка присідань, наступного разу додаємо вагу.', lifts: [['Присід', '4×8 · 80 кг'], ['Жим лежачи', '4×8 · 55 кг'], ['Тяга в нахилі', '3×10 · 45 кг']] },
+    { ago: 5, type: 'Функціональне', time: '19:00', st: 'done', note: 'Тримай пульс у зоні 130–145, не забувай про воду.', lifts: [['Свінг з гирею', '5×15 · 16 кг'], ['Бурпі', '4×12'], ['Планка', '3×60 с']] },
+    { ago: 7, type: 'Розтяжка', time: '09:00', st: 'done', note: 'Грудний відділ став рухливішим. Продовжуємо.', lifts: [['Мобільність грудного відділу', '10 хв'], ['Згиначі стегна', '3×45 с'], ['Дихальні вправи', '5 хв']] },
+    { ago: 10, type: 'Силове', time: '18:00', st: 'done', note: 'Станова пройшла рівніше. Тримаємо цей темп.', lifts: [['Станова тяга', '4×5 · 90 кг'], ['Жим стоячи', '3×8 · 30 кг'], ['Підтягування', '3×6']] },
+    { ago: 12, type: 'Функціональне', time: '19:00', st: 'done', note: 'Свінги стали стабільнішими, так тримати.', lifts: [['Випади з гантелями', '3×12 · 10 кг'], ['Скручування', '3×20']] },
+    { ago: 15, type: 'Силове', time: '18:00', st: 'cancelled', note: '', lifts: [] },
+    { ago: 17, type: 'Силове', time: '18:00', st: 'done', note: 'Додали вагу в жимі, техніка не просіла.', lifts: [['Присід', '4×8 · 75 кг'], ['Жим лежачи', '4×8 · 52,5 кг'], ['Румунська тяга', '3×10 · 60 кг']] },
+    { ago: 19, type: 'Функціональне', time: '19:00', st: 'done', note: 'Гарна витривалість у третьому колі.', lifts: [] },
+    { ago: 24, type: 'Силове', time: '18:00', st: 'done', note: 'Працюємо над глибиною присіду.', lifts: [] },
+    { ago: 26, type: 'Функціональне', time: '19:00', st: 'done', note: 'Темп добрий, відпочинок між колами скоротили.', lifts: [] },
+    { ago: 31, type: 'Силове', time: '18:00', st: 'done', note: 'Перше тренування в новому циклі.', lifts: [] },
+    { ago: 33, type: 'Розтяжка', time: '09:00', st: 'done', note: 'Вступна мобільність, база для силових.', lifts: [] }
+  ].map(function (h) {
+    return { date: addDays(today, -h.ago), type: h.type, time: h.time, st: h.st, note: h.note, lifts: h.lifts, trainer: h.type === 'Розтяжка' ? 'iryna' : 'maksym', dur: TYPES[h.type].dur };
+  });
+  var DONE = 3; // тренування з поточного пакета
+
+  var state = {
+    mode: 'client', tab: 'home',
+    type: 'Силове', day: 1, time: null, cancelling: null, buying: null, justBooked: false, moving: null,
+    trainerId: 'maksym', picking: false, filter: 'all',
+    total: 10, expires: addDays(today, 49), remind: '2h',
+    bookings: [{ date: key(addDays(today, 2)), time: '18:00', type: 'Силове', trainer: 'maksym' }],
+    coachId: null, cday: 0, codeError: false,
+    taken: {}, race: true, raceInfo: null,
+    payments: [
+      { who: 'Ірина М.', what: 'Пакет, 10 тренувань', sum: 6000, ago: 1, trainer: 'maksym' },
+      { who: 'Андрій П.', what: 'Пакет, 5 тренувань', sum: 3500, ago: 4, trainer: 'maksym' },
+      { who: 'Софія Л.', what: 'Пакет, 10 тренувань', sum: 6000, ago: 8, trainer: 'iryna' },
+      { who: 'Денис Б.', what: 'Пакет, 20 тренувань', sum: 10400, ago: 13, trainer: 'oleksii' },
+      { who: 'Марина Т.', what: 'Пакет, 5 тренувань', sum: 3500, ago: 17, trainer: 'iryna' },
+      { who: ME, what: 'Пакет, 10 тренувань', sum: 6000, ago: 25, trainer: 'maksym' }
+    ]
+  };
+
+  var SECTIONS = ['home', 'book', 'history', 'prices', 'code', 'cschedule', 'chours', 'cpayments'];
+  var TABS = {
+    client: [{ id: 'home', label: 'Кабінет', icon: 'home' }, { id: 'book', label: 'Запис', icon: 'calplus' }, { id: 'history', label: 'Прогрес', icon: 'gear' }],
+    coach: [{ id: 'cschedule', label: 'Розклад', icon: 'calplus' }, { id: 'chours', label: 'Графік', icon: 'gear' }, { id: 'cpayments', label: 'Оплати', icon: 'coins' }]
+  };
+  var el = { toast: document.getElementById('toast'), main: document.getElementById('main'), nav: document.getElementById('nav'), gate: document.getElementById('gate'), line: document.getElementById('coach-line'), cta: document.getElementById('cta') };
+  SECTIONS.forEach(function (s) { el[s] = document.getElementById('tab-' + s); });
+
+  /* ---------- Розклад: спільна логіка ---------- */
+  function slotsOf(id, d) {
+    var s = sch(id), k = key(d);
+    if (s.off.indexOf(k) >= 0) return [];
+    var t = s.tpl[d.getDay()];
+    if (!t.on) return [];
+    var out = [], m = toMin(t.from), end = toMin(t.to);
+    while (m + s.slotMin <= end) {
+      var x = fromMin(m);
+      if (!(k === key(today) && parseInt(x, 10) <= nowHour)) out.push(x);
+      m += s.slotMin;
+    }
+    return out;
+  }
+  function bookingWith(id, k, t) {
+    return state.bookings.filter(function (b) { return b.trainer === id && b.date === k && b.time === t; })[0];
+  }
+  function statusOf(id, d, t) {
+    var k = key(d);
+    if (bookingWith(id, k, t)) return 'mine';
+    if ((sch(id).closed[k] || []).indexOf(t) >= 0) return 'closed';
+    if (state.taken[id + '|' + k + '|' + t]) return 'booked';
+    if (hash(k + t + id) % 100 < 35) return 'booked';
+    for (var i = 0; i < state.bookings.length; i++) {
+      if (state.bookings[i].date === k && state.bookings[i].time === t) return 'conflict';
+    }
+    return 'free';
+  }
+  function freeSlots(id, d) { return slotsOf(id, d).filter(function (t) { return statusOf(id, d, t) === 'free'; }); }
+  function dayStats(id, d) {
+    var s = { free: 0, booked: 0, closed: 0 };
+    slotsOf(id, d).forEach(function (t) {
+      var st = statusOf(id, d, t);
+      if (st === 'free') s.free++; else if (st === 'closed') s.closed++; else if (st === 'booked' || st === 'mine') s.booked++;
+    });
+    return s;
+  }
+  function dayKind(id, d) {
+    if (sch(id).off.indexOf(key(d)) >= 0) return 'off';
+    if (!sch(id).tpl[d.getDay()].on) return 'rest';
+    return 'work';
+  }
+
+  /* ---------- Клієнт: допоміжні ---------- */
+  function freeCount() { return state.total - DONE - state.bookings.length; }
+  function sortedBookings() {
+    return state.bookings.map(function (b, i) { return { b: b, i: i }; })
+      .sort(function (x, y) { return (x.b.date + x.b.time) < (y.b.date + y.b.time) ? -1 : 1; });
+  }
+  function remindText() {
+    if (state.remind === 'off') return 'Нагадування вимкнено.';
+    return 'Бот напише вам у Telegram ' + (state.remind === '2h' ? 'за 2 години' : 'за добу') + ' до кожного тренування.';
+  }
+  function doneList() { return HIST.filter(function (h) { return h.st === 'done'; }); }
+  function inMonth(d) { return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth(); }
+  function streakWeeks() {
+    var ws = weekStart(today), n = 0, i = 0;
+    function has(k) {
+      var a = addDays(ws, -7 * k), b = addDays(a, 7);
+      return doneList().some(function (h) { return h.date >= a && h.date < b; });
+    }
+    if (!has(0)) i = 1;
+    while (has(i)) { n++; i++; }
+    return n;
+  }
+  function greeting() { return nowHour < 12 ? 'Доброго ранку,' : (nowHour < 18 ? 'Доброго дня,' : 'Доброго вечора,'); }
+
+  function trainingCard(o) {
+    // o: {type, date, time, trainer, status, note, lifts, dur, idx, ctrl}
+    var t = TYPES[o.type], h = '<div class="card tcard"><div class="head">';
+    if (o.dateTile) {
+      h += '<div class="tile date"><b>' + o.date.getDate() + '</b><small>' + MONS[o.date.getMonth()] + '</small></div>';
+    } else {
+      h += '<div class="tile ' + t.cls + '">' + svg(o.type) + '</div>';
+    }
+    h += '<div class="info"><div class="title"><b>' + o.type + '</b>' + (o.status ? '<span class="pill ' + o.status + '">' + { planned: 'Заплановано', done: 'Завершено', cancelled: 'Скасовано' }[o.status] + '</span>' : '') + '</div>';
+    h += '<div class="line">';
+    if (o.dateTile) {
+      h += '<span>' + svg('clock') + o.time + ' · ' + WDL[o.date.getDay()] + '</span><span>' + svg('pin') + 'Офлайн · ' + o.dur + ' хв</span><span>' + svg('user') + tr(o.trainer).short + '</span>';
+    } else {
+      h += '<span>' + svg('cal') + o.date.getDate() + ' ' + MONS[o.date.getMonth()] + ', ' + WD[o.date.getDay()] + '</span><span>' + svg('clock') + o.time + '</span><span>' + svg('pin') + 'Офлайн</span>';
+    }
+    h += '</div></div></div>';
+    if (o.note) h += '<div class="note"><i>' + tr(o.trainer).short + ':</i> ' + o.note + '</div>';
+    if (o.lifts && o.lifts.length) {
+      h += '<details class="ex"><summary>Вправи' + svg('chev') + '</summary><ul class="lifts">' +
+        o.lifts.map(function (l) { return '<li><span>' + l[0] + '</span><span>' + l[1] + '</span></li>'; }).join('') + '</ul></details>';
+    }
+    if (o.ctrl) {
+      if (state.cancelling === o.idx) {
+        h += '<div class="acts2"><button type="button" class="ghost danger" data-action="cancel-yes" data-i="' + o.idx + '">Скасувати запис</button><button type="button" class="ghost" data-action="cancel-no">Залишити</button></div>';
+      } else {
+        h += '<div class="acts2"><button type="button" class="ghost" data-action="move" data-i="' + o.idx + '">Перенести</button><button type="button" class="ghost" data-action="cancel-ask" data-i="' + o.idx + '">Скасувати</button></div>';
+      }
+    }
+    return h + '</div>';
+  }
+
+  /* ---------- Кабінет ---------- */
+  function renderHome() {
+    var free = freeCount(), booked = state.bookings.length, h = '';
+    h += '<div class="hello"><div class="av">О</div><div class="t"><small>' + greeting() + '</small><b>Олена</b></div>' +
+      '<button type="button" class="icon-btn" data-action="bell" aria-label="Нагадування">' + svg('bell') + (state.remind !== 'off' ? '<span class="dot"></span>' : '') + '</button></div>';
+
+    h += '<div class="bal"><div class="eyebrow">Ваш баланс</div>' +
+      '<svg class="plate" viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="pg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9BEA6A"/><stop offset="1" stop-color="#2FAE4A"/></linearGradient></defs>' +
+      '<circle cx="60" cy="58" r="46" fill="url(#pg)"/><circle cx="60" cy="58" r="35" fill="none" stroke="#06110A" stroke-opacity=".28" stroke-width="3"/><circle cx="60" cy="58" r="10" fill="#0A0F0A"/>' +
+      '<rect x="38" y="92" width="44" height="18" rx="9" fill="#0A0F0A" fill-opacity=".72"/><text x="60" y="105" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="Manrope, sans-serif">20 кг</text></svg>';
+    h += '<div class="num">' + free + '</div><div class="word acc">' + plural(free, 'тренування', 'тренування', 'тренувань') + '</div>' +
+      '<div class="sub">доступно з ' + state.total + ' у пакеті</div><div class="segs" aria-hidden="true">';
+    for (var i = 0; i < state.total; i++) {
+      var cls = i < DONE ? 'done' : (i < DONE + booked ? 'booked' : 'free');
+      if (state.justBooked && i === DONE + booked - 1) cls += ' pulse';
+      h += '<i class="' + cls + '"></i>';
+    }
+    h += '</div><div class="meta"><span>' + svg('gift') + 'Пакет ' + state.total + ' ' + plural(state.total, 'тренування', 'тренування', 'тренувань') + '</span><span>' + svg('cal') + 'до ' + fmtShort(state.expires) + '</span></div>';
+    h += free > 0
+      ? '<button type="button" class="go" data-action="goto-book">Записатись на тренування<i>' + svg('arrow') + '</i></button>'
+      : '<button type="button" class="go" data-action="goto-prices">Купити пакет<i>' + svg('arrow') + '</i></button>';
+    h += '</div>';
+
+    var doneM = doneList().filter(function (x) { return inMonth(x.date); });
+    var mins = doneM.reduce(function (s, x) { return s + x.dur; }, 0);
+    h += '<div class="stats">' +
+      '<div class="card stat"><div class="ic w">' + svg('flame') + '</div><b>' + streakWeeks() + '</b><span>' + plural(streakWeeks(), 'тиждень', 'тижні', 'тижнів') + ' поспіль</span></div>' +
+      '<div class="card stat"><div class="ic">' + svg('Силове') + '</div><b>' + doneM.length + '</b><span>тренувань цього місяця</span></div>' +
+      '<div class="card stat"><div class="ic w">' + svg('clock') + '</div><b>' + mins + '</b><span>хвилин руху цього місяця</span></div></div>';
+
+    h += '<div class="h2">Найближче тренування</div><div class="stack">';
+    var list = sortedBookings();
+    if (!list.length) {
+      h += '<div class="empty">Записів немає. Оберіть день і час у розділі «Запис».</div>';
+    } else {
+      list.forEach(function (x) {
+        h += trainingCard({ type: x.b.type, date: parse(x.b.date), time: x.b.time, trainer: x.b.trainer, dur: TYPES[x.b.type].dur, dateTile: true, ctrl: true, idx: x.i });
+      });
+    }
+    h += '</div>';
+
+    var cur = tr(state.trainerId);
+    h += '<div class="h2" id="trainer-block">Ваш тренер<span>' + (state.picking ? '' : '') + '</span></div><div class="stack">' +
+      '<div class="card pick" style="cursor:default"><span class="ava">' + cur.init + '</span><span class="txt"><b>' + cur.name + '</b><small>' + cur.spec + '</small></span></div>';
+    if (state.picking) {
+      TRAINERS.forEach(function (t) {
+        h += '<button type="button" class="pick" data-action="trainer" data-v="' + t.id + '" aria-pressed="' + (t.id === state.trainerId) + '"><span class="ava">' + t.init + '</span><span class="txt"><b>' + t.name + '</b><small>' + t.spec + '</small></span><span class="chk">' + svg('check') + '</span></button>';
+      });
+      h += '<p class="muted small">Нові записи будуть до обраного тренера. Уже заплановані тренування лишаться без змін.</p>';
+    }
+    h += '<button type="button" class="ghost" style="width:100%" data-action="pick-toggle">' + (state.picking ? 'Закрити' : 'Змінити тренера') + '</button></div>';
+
+    // Активність за 6 тижнів
+    var ws = weekStart(today), weeks = [], maxN = 1, thisWeekN = 0;
+    for (var k = 5; k >= 0; k--) {
+      var a = addDays(ws, -7 * k), b = addDays(a, 7);
+      var d1 = doneList().filter(function (x) { return x.date >= a && x.date < b; }).length;
+      var p1 = state.bookings.filter(function (x) { var dd = parse(x.date); return dd >= a && dd < b; }).length;
+      weeks.push({ a: a, d: d1, p: p1, cur: k === 0 });
+      maxN = Math.max(maxN, d1 + p1);
+      if (k === 0) thisWeekN = d1 + p1;
+    }
+    h += '<div class="h2">Активність<span>6 тижнів</span></div><div class="card chart"><div class="eyebrow">Цього тижня</div>' +
+      '<div class="big">' + thisWeekN + '<small>' + plural(thisWeekN, 'тренування', 'тренування', 'тренувань') + '</small></div><div class="bars">';
+    weeks.forEach(function (w) {
+      var unit = 84 / maxN;
+      h += '<div class="bar"><span class="n">' + (w.d + w.p) + '</span><div class="col">' +
+        (w.p ? '<div class="p" style="height:' + Math.round(w.p * unit + 14) + 'px"></div>' : '') +
+        (w.d ? '<div class="d" style="height:' + Math.round(w.d * unit + 14) + 'px"></div>' : '') +
+        (!w.d && !w.p ? '<div class="z"></div>' : '') + '</div></div>';
+    });
+    h += '</div><div class="labels">' + weeks.map(function (w) {
+      return '<span>' + (w.cur ? '<b>цей</b>' : String(w.a.getDate()).padStart(2, '0') + '.' + String(w.a.getMonth() + 1).padStart(2, '0')) + '</span>';
+    }).join('') + '</div><div class="legend"><span><i class="l-done"></i>завершені</span><span><i class="l-planned"></i>заплановані</span></div></div>';
+
+    h += '<div class="h2">Швидкий доступ</div><div class="quick">' +
+      '<button type="button" data-action="goto-book"><span class="q">' + svg('calplus') + '</span>Запис</button>' +
+      '<button type="button" data-action="trainer-focus"><span class="q w">' + svg('coach') + '</span>Тренер</button>' +
+      '<button type="button" data-action="goto-history"><span class="q">' + svg('gear') + '</span>Історія</button>' +
+      '<button type="button" data-action="goto-prices"><span class="q w">' + svg('gift') + '</span>Пакети</button></div>';
+
+    var best = PACKS.filter(function (p) { return p.best; })[0], per = Math.round(best.price / best.n), pct = Math.round(100 - per / SINGLE * 100);
+    h += '<div class="promo"><div class="off acc">−' + pct + '%<small>У ПАКЕТІ</small></div><h3>Пакет ' + best.n + ' тренувань</h3>' +
+      '<p>' + money(per) + ' за тренування замість ' + money(SINGLE) + '</p><button type="button" class="ghost" data-action="goto-prices">Детальніше</button>' +
+      '<svg viewBox="0 0 130 90" aria-hidden="true"><defs><linearGradient id="dg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9BEA6A"/><stop offset="1" stop-color="#2FAE4A"/></linearGradient></defs>' +
+      '<g transform="rotate(-20 65 45)"><rect x="26" y="41" width="78" height="8" rx="4" fill="#E8ECE4"/><rect x="14" y="22" width="16" height="46" rx="7" fill="url(#dg)"/><rect x="6" y="30" width="10" height="30" rx="5" fill="url(#dg)"/>' +
+      '<rect x="100" y="22" width="16" height="46" rx="7" fill="url(#dg)"/><rect x="114" y="30" width="10" height="30" rx="5" fill="url(#dg)"/></g></svg></div>';
+
+    h += '<div class="h2">Нагадування в Telegram</div><div class="seg" role="group" aria-label="Нагадування">';
+    [['2h', 'За 2 години'], ['1d', 'За добу'], ['off', 'Вимкнути']].forEach(function (r) {
+      h += '<button type="button" data-action="remind" data-v="' + r[0] + '" aria-pressed="' + (state.remind === r[0]) + '">' + r[1] + '</button>';
+    });
+    h += '</div><p class="muted small" style="margin-top:10px" id="remind-note">' + remindText() + '</p>';
+    h += '<p class="quote">Маленький крок щодня складається у великий результат.</p><p class="foot">Це прототип: усі дані умовні.</p>';
+    el.home.innerHTML = h;
+    state.justBooked = false;
+  }
+
+  /* ---------- Запис ---------- */
+  function renderBook() {
+    var id = state.trainerId, t = tr(id), h = '';
+    var day = addDays(today, state.day), free = freeCount();
+    h += '<div class="eyebrow">Новий запис</div><h1 class="h1">Оберіть <em>свій час</em></h1>';
+
+    if (state.raceInfo) {
+      var ri = state.raceInfo, rd = parse(ri.date);
+      var alts = slotsOf(ri.trainer, rd).filter(function (x) { return statusOf(ri.trainer, rd, x) === 'free'; })
+        .sort(function (x, y) { return Math.abs(toMin(x) - toMin(ri.time)) - Math.abs(toMin(y) - toMin(ri.time)); })
+        .slice(0, 3).sort();
+      h += '<div class="card taken" role="alert"><b>Цей час щойно зайняли</b>' +
+        '<p>' + fmt(rd) + ', ' + ri.time + ' ' + tr(ri.trainer).with + ': хтось записався раніше за вас. Тренування з пакета не списано.</p>' +
+        (alts.length
+          ? '<div class="eyebrow" style="margin-top:14px">Найближчий вільний час</div><div class="tgrid" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
+            alts.map(function (x) { return '<button type="button" class="tbtn" data-action="alt" data-v="' + x + '">' + x + '</button>'; }).join('') + '</div>'
+          : '<p class="muted small" style="margin-top:12px">На цей день вільного часу більше немає. Оберіть інший день або іншого тренера.</p>') +
+        '</div>';
+    }
+
+    if (state.moving !== null && state.bookings[state.moving]) {
+      var mb = state.bookings[state.moving];
+      h += '<div class="card banner"><p>Переносите тренування: <b>' + fmt(parse(mb.date)) + ', ' + mb.time + '</b></p><button type="button" class="ghost" data-action="move-cancel">Не переносити</button></div>';
+    }
+
+    h += '<div class="h2">Тренер</div><div class="stack">';
+    TRAINERS.forEach(function (x) {
+      h += '<button type="button" class="pick" data-action="trainer" data-v="' + x.id + '" aria-pressed="' + (x.id === id) + '"><span class="ava">' + x.init + '</span><span class="txt"><b>' + x.name + '</b><small>' + x.spec + '</small></span><span class="chk">' + svg('check') + '</span></button>';
+    });
+    h += '</div>';
+
+    h += '<div class="h2">Тип</div><div class="seg" role="group" aria-label="Тип тренування">';
+    t.types.forEach(function (n) {
+      h += '<button type="button" data-action="type" data-v="' + n + '" aria-pressed="' + (state.type === n) + '">' + n + '</button>';
+    });
+    h += '</div>';
+
+    h += '<div class="h2">Дата<span>' + MON_NOM[day.getMonth()] + ' ' + day.getFullYear() + '</span></div><div class="dates" role="group" aria-label="Дата">';
+    for (var i = 0; i < 14; i++) {
+      var d = addDays(today, i), n = freeSlots(id, d).length, kind = dayKind(id, d);
+      h += '<button type="button" class="dchip' + (n === 0 ? ' dim' : '') + '" data-action="day" data-v="' + i + '" aria-pressed="' + (state.day === i) + '">' +
+        '<small>' + (i === 0 ? 'СЬОГ' : WDU[d.getDay()]) + '</small><b>' + d.getDate() + '</b>' +
+        (n > 0 ? '<i></i>' : (kind !== 'work' ? '<em>вих.</em>' : '<i class="none"></i>')) + '</button>';
+    }
+    h += '</div>';
+
+    var list = slotsOf(id, day).filter(function (x) { var s = statusOf(id, day, x); return s === 'free' || s === 'mine'; });
+    h += '<div class="h2">Час<span>' + WDL[day.getDay()] + ', ' + fmtShort(day) + '</span></div>';
+    if (!list.length) {
+      h += '<div class="empty">На цей день вільного часу немає. Оберіть інший день або іншого тренера.</div>';
+    } else {
+      [['Ранок і день', function (x) { return parseInt(x, 10) < 17; }], ['Вечір', function (x) { return parseInt(x, 10) >= 17; }]].forEach(function (g) {
+        var part = list.filter(g[1]);
+        if (!part.length) return;
+        h += '<div class="tgroup"><div class="eyebrow">' + g[0] + '</div><div class="tgrid" role="group" aria-label="' + g[0] + '">';
+        part.forEach(function (x) {
+          var mine = statusOf(id, day, x) === 'mine';
+          h += '<button type="button" class="tbtn' + (mine ? ' mine' : '') + '" data-action="time" data-v="' + x + '"' + (mine ? ' disabled aria-label="' + x + ', ваш запис"' : '') +
+            ' aria-pressed="' + (!mine && state.time === x) + '">' + x + '</button>';
+        });
+        h += '</div></div>';
+      });
+      h += '<p class="muted small" style="margin-top:14px">Показано лише вільний час тренера. Пунктиром позначено ваш запис.</p>';
+    }
+    if (state.race) h += '<p class="demo">Для прототипу: перша спроба запису завжди закінчується повідомленням «Цей час щойно зайняли». Так показано, що побачить клієнт, якщо хтось встиг раніше. Друга спроба проходить як звичайно.</p>';
+    el.book.innerHTML = h;
+
+    var ok = state.time && slotsOf(id, day).indexOf(state.time) >= 0 && statusOf(id, day, state.time) === 'free';
+    var c;
+    if (free <= 0 && state.moving === null) {
+      c = '<div class="info">Вільних тренувань немає.</div><button type="button" class="go" data-action="goto-prices">Купити пакет</button>';
+    } else if (ok) {
+      c = '<div class="info">' + state.type + ' ' + t.with + ' · ' + (state.moving === null ? 'спишеться 1 тренування, залишиться ' + (free - 1) : 'баланс не зміниться') + '</div>' +
+        '<button type="button" class="go" data-action="book">' + (state.moving === null ? 'Записатись' : 'Перенести') + ' · ' + state.time + ', ' + WD[day.getDay()] + ', ' + day.getDate() + ' ' + MONS[day.getMonth()] + '</button>';
+    } else {
+      c = '<button type="button" class="go" disabled>Оберіть час</button>';
+    }
+    el.cta.innerHTML = c;
+  }
+
+  /* ---------- Прогрес ---------- */
+  function renderHistory() {
+    var h = '<div class="eyebrow">Історія</div><h1 class="h1">Мій <em>прогрес</em></h1>';
+    var doneN = doneList().length, plannedN = state.bookings.length, monthN = doneList().filter(function (x) { return inMonth(x.date); }).length;
+    h += '<div class="stats">' +
+      '<div class="card stat"><div class="ic">' + svg('check') + '</div><b>' + doneN + '</b><span>завершено</span></div>' +
+      '<div class="card stat"><div class="ic w">' + svg('cal') + '</div><b>' + monthN + '</b><span>цього місяця</span></div>' +
+      '<div class="card stat"><div class="ic w">' + svg('clock') + '</div><b>' + plannedN + '</b><span>заплановано</span></div></div>';
+
+    // Календар поточного місяця
+    var first = new Date(today.getFullYear(), today.getMonth(), 1), daysIn = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+    var marks = {};
+    HIST.forEach(function (x) { if (inMonth(x.date)) marks[x.date.getDate()] = x.st; });
+    state.bookings.forEach(function (b) { var d = parse(b.date); if (inMonth(d)) marks[d.getDate()] = 'planned'; });
+    h += '<div class="card cal"><div class="hd"><b>' + MON_NOM[today.getMonth()] + ' ' + today.getFullYear() + '</b><span>' + monthN + ' ' + plural(monthN, 'заняття', 'заняття', 'занять') + '</span></div><div class="grid7">';
+    ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ', 'НД'].forEach(function (w) { h += '<div class="wd">' + w + '</div>'; });
+    for (var i = 0; i < (first.getDay() + 6) % 7; i++) h += '<div></div>';
+    for (var d = 1; d <= daysIn; d++) {
+      h += '<div class="dn ' + (marks[d] || '') + (d === today.getDate() ? ' today' : '') + '">' + d + '</div>';
+    }
+    h += '</div><div class="legend"><span><i class="l-done"></i>було</span><span><i class="l-planned"></i>заплановано</span><span><i class="l-cancelled"></i>скасовано</span></div></div>';
+
+    h += '<div class="chips" style="margin-top:18px" role="group" aria-label="Фільтр">';
+    [['all', 'Усі'], ['planned', 'Заплановані'], ['done', 'Завершені'], ['cancelled', 'Скасовані']].forEach(function (f) {
+      h += '<button type="button" class="chip" data-action="filter" data-v="' + f[0] + '" aria-pressed="' + (state.filter === f[0]) + '">' + f[1] + '</button>';
+    });
+    h += '</div>';
+
+    var items = [];
+    state.bookings.forEach(function (b, i) { items.push({ st: 'planned', date: parse(b.date), time: b.time, type: b.type, trainer: b.trainer, dur: TYPES[b.type].dur, idx: i, note: '', lifts: [] }); });
+    HIST.forEach(function (x) { items.push(x); });
+    items = items.filter(function (x) { return state.filter === 'all' || x.st === state.filter; });
+    items.sort(function (a, b) {
+      if ((a.st === 'planned') !== (b.st === 'planned')) return a.st === 'planned' ? -1 : 1;
+      return a.st === 'planned' ? a.date - b.date : b.date - a.date;
+    });
+    if (!items.length) h += '<div class="empty" style="margin-top:14px">Тут поки порожньо.</div>';
+    var lastM = '';
+    items.forEach(function (x) {
+      var m = x.date.getFullYear() + '-' + x.date.getMonth();
+      if (m !== lastM) { h += '<div class="h2" style="margin-bottom:10px">' + MON_NOM[x.date.getMonth()] + ' ' + x.date.getFullYear() + '</div>'; lastM = m; }
+      h += '<div style="margin-top:10px">' + trainingCard({ type: x.type, date: x.date, time: x.time, trainer: x.trainer, status: x.st, note: x.note, lifts: x.lifts, dur: x.dur, ctrl: x.st === 'planned', idx: x.idx }) + '</div>';
+    });
+    el.history.innerHTML = h;
+  }
+
+  /* ---------- Пакети ---------- */
+  function renderPrices() {
+    var h = '<button type="button" class="back" data-action="back-home">' + svg('back') + 'Кабінет</button>' +
+      '<div class="eyebrow" style="margin-top:8px">Пакети</div><h1 class="h1">Оберіть <em>свій пакет</em></h1>' +
+      '<p class="muted small" style="margin-top:8px">Пакет діє на будь-який тип тренування. Чим більше занять, тим нижча ціна за одне.</p><div class="stack" style="margin-top:16px">';
+    PACKS.forEach(function (p, i) {
+      var per = Math.round(p.price / p.n), pct = Math.round(100 - per / SINGLE * 100);
+      h += '<div class="card pack"><div class="top2"><div class="n">' + p.n + '<small>' + plural(p.n, 'тренування', 'тренування', 'тренувань') + '</small></div><span class="pill ' + (p.best ? 'free' : 'booked') + '">' + (p.best ? 'Вигідно · ' : '') + '−' + pct + '%</span></div>' +
+        '<div class="price">' + money(p.price) + '</div><div class="per">' + money(per) + ' за тренування · діє ' + p.days + ' днів</div>';
+      if (state.buying === i) {
+        h += '<div class="pay">До сплати ' + money(p.price) + '. Оплату підключимо пізніше, тут вона умовна.</div>' +
+          '<div class="acts2"><button type="button" class="ghost" data-action="buy-no">Скасувати</button><button type="button" class="ghost solid" data-action="buy-yes" data-i="' + i + '">Оплатити</button></div>';
+      } else {
+        h += '<button type="button" class="go" style="margin-top:14px;min-height:52px" data-action="buy-ask" data-i="' + i + '">Купити<i>' + svg('arrow') + '</i></button>';
+      }
+      h += '</div>';
+    });
+    h += '</div><div class="h2">Окремі тренування</div><div class="stack">';
+    Object.keys(TYPES).forEach(function (n) {
+      var t = TYPES[n];
+      h += '<div class="card row"><div class="trainer" style="display:flex;align-items:center;gap:12px;min-width:0"><div class="tile ' + t.cls + '" style="width:48px;height:48px;border-radius:16px">' + svg(n) + '</div><div style="min-width:0"><div class="when">' + n + '</div><div class="what">' + t.dur + ' хв · ' + t.place + '</div></div></div><div class="sum">' + money(t.price) + '</div></div>';
+    });
+    h += '</div>';
+    el.prices.innerHTML = h;
+  }
+
+  /* ---------- Вхід тренера ---------- */
+  function renderCode() {
+    el.code.innerHTML = '<div class="eyebrow">Для тренерів</div><h1 class="h1">Вхід <em>за кодом</em></h1>' +
+      '<p class="muted small" style="margin-top:10px">Введіть код, який вам видав адміністратор залу. Там ви налаштовуєте свій графік.</p>' +
+      '<form id="code-form" class="form" autocomplete="off"><input id="code-input" class="codein" type="text" autocapitalize="characters" spellcheck="false" aria-label="Код тренера" placeholder="MAKS-0000">' +
+      (state.codeError ? '<p class="err" role="alert">Код не підійшов. Перевірте його й введіть ще раз.</p>' : '') +
+      '<button type="submit" class="go">Увійти</button></form>' +
+      '<p class="muted small" style="margin-top:18px">Для прототипу: MAKS-4821, IRYNA-3057, OLEKS-7714.</p>';
+  }
+
+  /* ---------- Кабінет тренера ---------- */
+  function renderCSchedule() {
+    var id = state.coachId, d = addDays(today, state.cday), k = key(d), kind = dayKind(id, d), s = dayStats(id, d);
+    var h = '<div class="eyebrow">Кабінет тренера</div><h1 class="h1">Мій <em>розклад</em></h1><div class="strip" role="group" aria-label="День">';
+    for (var i = 0; i < 14; i++) {
+      var x = addDays(today, i), kx = dayKind(id, x), st = dayStats(id, x);
+      h += '<button type="button" class="cday' + (kx !== 'work' ? ' off' : '') + '" data-action="c-day" data-v="' + i + '" aria-pressed="' + (i === state.cday) + '"><small>' + (i === 0 ? 'СЬОГ' : WDU[x.getDay()]) + '</small><b>' + x.getDate() + '</b><i>' + (kx === 'work' ? st.free + ' вільно' : 'вих.') + '</i></button>';
+    }
+    h += '</div><div class="h2">' + WDF[d.getDay()] + ', ' + fmtShort(d) + '</div>';
+    if (kind !== 'work') {
+      h += '<div class="notice">' + (kind === 'off' ? 'Вихідний, ви його позначили. Клієнти не бачать цей день у записі.' : 'За графіком це неробочий день. Клієнти не бачать його в записі.') + '</div>';
+      h += '<div class="cbtns">' + (kind === 'off' ? '<button type="button" class="ghost solid" data-action="c-day-on">Зробити робочим</button>' : '<button type="button" class="ghost" data-action="c-day-extra">Відкрити цей день щотижня</button>') + '</div>';
+    } else {
+      h += '<div class="stats" style="margin-top:0"><div class="card stat"><div class="ic">' + svg('check') + '</div><b>' + s.free + '</b><span>вільно</span></div>' +
+        '<div class="card stat"><div class="ic w">' + svg('user') + '</div><b>' + s.booked + '</b><span>записано</span></div>' +
+        '<div class="card stat"><div class="ic w">' + svg('clock') + '</div><b>' + s.closed + '</b><span>закрито</span></div></div>';
+      h += '<p class="muted small" style="margin-top:12px">Торкніться вільного часу, щоб закрити його, або закритого, щоб відкрити. Клієнти бачать лише вільний час.</p><div class="stack" style="margin-top:10px">';
+      var slots = slotsOf(id, d);
+      if (!slots.length) h += '<div class="empty">На сьогодні вільного часу в графіку вже немає.</div>';
+      slots.forEach(function (t) {
+        var st2 = statusOf(id, d, t), hh = hash(k + t + id), b = bookingWith(id, k, t), end = fromMin(toMin(t) + sch(id).slotMin);
+        var name = st2 === 'mine' ? ME : (st2 === 'booked' ? NAMES[(hh >>> 3) % NAMES.length] : '');
+        var types = tr(id).types, typ = b ? b.type : types[(hh >>> 7) % types.length];
+        var busy = st2 === 'booked' || st2 === 'mine' || st2 === 'conflict';
+        h += '<button type="button" class="srow is-' + (busy ? 'booked' : st2) + '" data-action="c-slot" data-t="' + t + '"' + (busy ? ' disabled' : '') + '><span class="t">' + t + '</span><span class="n">' +
+          (busy && st2 !== 'conflict' ? '<b>' + name + '</b><span>' + typ + ', до ' + end + '</span>' : '<span>до ' + end + '</span>') + '</span>' +
+          '<span class="pill ' + (busy ? 'booked' : st2) + '">' + (st2 === 'free' ? 'Вільно' : st2 === 'closed' ? 'Закрито' : 'Записано') + '</span></button>';
+      });
+      h += '</div><div class="cbtns"><button type="button" class="ghost" data-action="c-day-all">' + (s.free > 0 ? 'Закрити весь вільний час' : 'Відкрити весь закритий час') + '</button>' +
+        '<button type="button" class="ghost danger" data-action="c-day-off">Вихідний день</button></div>';
+      if (s.booked) h += '<p class="muted small" style="margin-top:14px">Записані клієнти лишаються в розкладі, навіть якщо день закрити. Спершу з ними треба домовитись.</p>';
+    }
+    el.cschedule.innerHTML = h;
+  }
+  function weekFree(id) { var n = 0; for (var i = 0; i < 7; i++) n += freeSlots(id, addDays(today, i)).length; return n; }
+  function hourOptions(sel) {
+    var o = '';
+    for (var hh = 6; hh <= 23; hh++) { var v = String(hh).padStart(2, '0') + ':00'; o += '<option value="' + v + '"' + (v === sel ? ' selected' : '') + '>' + v + '</option>'; }
+    return o;
+  }
+  function renderCHours() {
+    var id = state.coachId, s = sch(id), wf = weekFree(id);
+    var h = '<div class="eyebrow">Графік</div><h1 class="h1">Мій <em>робочий час</em></h1>' +
+      '<p class="muted small" style="margin-top:10px">Зараз клієнти бачать <b style="color:var(--fg)">' + wf + '</b> ' + plural(wf, 'вільну годину', 'вільні години', 'вільних годин') + ' на найближчі 7 днів.</p>' +
+      '<div class="h2">Робочі дні та години</div><div class="stack">';
+    ORDER.forEach(function (n) {
+      var t = s.tpl[n];
+      h += '<div class="wk"><span class="d">' + WD[n] + '</span><button type="button" class="sw" role="switch" aria-checked="' + t.on + '" aria-label="' + WDF[n] + '" data-action="c-tpl-toggle" data-d="' + n + '"></button>';
+      h += t.on ? '<div class="hrs"><select aria-label="З" data-field="from" data-d="' + n + '">' + hourOptions(t.from) + '</select>–<select aria-label="До" data-field="to" data-d="' + n + '">' + hourOptions(t.to) + '</select></div>' : '<div class="hrs off">Вихідний</div>';
+      h += '</div>';
+    });
+    h += '</div><div class="h2">Тривалість тренування</div><div class="seg" role="group" aria-label="Тривалість">';
+    [45, 60, 90].forEach(function (m) { h += '<button type="button" data-action="c-slotmin" data-v="' + m + '" aria-pressed="' + (s.slotMin === m) + '">' + m + ' хв</button>'; });
+    h += '</div><div class="h2">Вихідні та відпустка</div><div class="stack">';
+    if (!s.off.length) h += '<div class="empty">Вихідних немає.</div>';
+    s.off.slice().sort().forEach(function (k) {
+      var d = parse(k);
+      h += '<div class="card row"><div class="when">' + WDF[d.getDay()] + ', ' + fmtShort(d) + '</div><button type="button" class="link" data-action="c-off-remove" data-k="' + k + '">Прибрати</button></div>';
+    });
+    h += '</div><div class="addoff"><select id="off-add" aria-label="Додати вихідний">';
+    for (var i = 0; i < 45; i++) { var d2 = addDays(today, i), k2 = key(d2); if (s.off.indexOf(k2) < 0) h += '<option value="' + k2 + '">' + WD[d2.getDay()] + ', ' + fmtShort(d2) + '</option>'; }
+    h += '</select><button type="button" class="ghost solid" data-action="c-off-add">Додати</button></div>' +
+      '<p class="foot" style="text-align:left">Зміни діють одразу: клієнти бачать у записі лише вільний час за цим графіком, а хто записаний, їм не показується.</p>';
+    el.chours.innerHTML = h;
+  }
+  function renderCPayments() {
+    var id = state.coachId, sum = 0, mine = state.payments.filter(function (p) { return p.trainer === id; });
+    mine.forEach(function (p) { if (p.ago <= 30) sum += p.sum; });
+    var h = '<div class="eyebrow">Оплати</div><h1 class="h1">Мої <em>надходження</em></h1>' +
+      '<div class="card stat" style="margin-top:16px"><div class="ic">' + svg('coins') + '</div><b>' + money(sum) + '</b><span>за останні 30 днів</span></div><div class="h2">Останні оплати</div><div class="stack">';
+    mine.forEach(function (p) {
+      h += '<div class="card row"><div><div class="when">' + p.who + '</div><div class="what">' + p.what + ' · ' + (p.ago === 0 ? 'сьогодні' : fmtShort(addDays(today, -p.ago))) + '</div></div><div class="sum">' + money(p.sum) + '</div></div>';
+    });
+    h += '</div><p class="foot">Оплата в прототипі умовна.</p>';
+    el.cpayments.innerHTML = h;
+  }
+
+  /* ---------- Каркас ---------- */
+  function renderNav() {
+    var tabs = TABS[state.mode] || [], cur = state.tab === 'prices' ? 'home' : state.tab;
+    el.nav.hidden = !tabs.length;
+    el.nav.style.gridTemplateColumns = 'repeat(' + Math.max(tabs.length, 1) + ', 1fr)';
+    el.nav.innerHTML = tabs.map(function (t) {
+      return '<button type="button" data-tab="' + t.id + '"' + (cur === t.id ? ' aria-current="page"' : '') + '>' + svg(t.icon) + t.label + '</button>';
+    }).join('');
+    if (state.mode === 'client') { el.line.textContent = ''; el.gate.textContent = 'Для тренерів'; el.gate.setAttribute('data-action', 'gate'); }
+    else if (state.mode === 'code') { el.line.textContent = ''; el.gate.textContent = 'Назад'; el.gate.setAttribute('data-action', 'gate-back'); }
+    else { el.line.textContent = tr(state.coachId).name; el.gate.textContent = 'Вийти'; el.gate.setAttribute('data-action', 'logout'); }
+    SECTIONS.forEach(function (s) { el[s].hidden = state.tab !== s; });
+    el.cta.hidden = !(state.mode === 'client' && state.tab === 'book');
+  }
+  function renderAll() {
+    renderHome(); renderBook(); renderHistory(); renderPrices(); renderCode();
+    if (state.coachId) { renderCSchedule(); renderCHours(); renderCPayments(); }
+    renderNav();
+  }
+  var toastTimer;
+  function toast(msg) {
+    el.toast.textContent = msg; el.toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.toast.hidden = true; }, 3200);
+  }
+  function go(tab) { state.tab = tab; state.cancelling = null; state.buying = null; renderAll(); el.main.scrollTop = 0; }
+
+  document.addEventListener('submit', function (e) {
+    if (e.target.id !== 'code-form') return;
+    e.preventDefault();
+    var v = document.getElementById('code-input').value.trim().toUpperCase();
+    var t = TRAINERS.filter(function (x) { return x.code === v; })[0];
+    if (!t) { state.codeError = true; renderCode(); var i = document.getElementById('code-input'); if (i) i.focus(); return; }
+    state.codeError = false; state.coachId = t.id; state.mode = 'coach'; state.cday = 0;
+    go('cschedule'); toast('Вхід виконано: ' + t.name);
+  });
+  document.addEventListener('change', function (e) {
+    var s = e.target.closest('select[data-field]');
+    if (!s) return;
+    var n = parseInt(s.getAttribute('data-d'), 10), f = s.getAttribute('data-field'), t = sch(state.coachId).tpl[n];
+    t[f] = s.value;
+    if (toMin(t.to) <= toMin(t.from)) {
+      if (f === 'from') t.to = fromMin(Math.min(toMin(t.from) + 60, 23 * 60)); else t.from = fromMin(Math.max(toMin(t.to) - 60, 6 * 60));
+    }
+    renderAll();
+  });
+
+  document.addEventListener('click', function (e) {
+    var tabBtn = e.target.closest('[data-tab]');
+    if (tabBtn) { go(tabBtn.getAttribute('data-tab')); return; }
+    var a = e.target.closest('[data-action]');
+    if (!a) return;
+    var act = a.getAttribute('data-action'), v = a.getAttribute('data-v'), idx = parseInt(a.getAttribute('data-i'), 10);
+
+    if (act === 'gate') { state.mode = 'code'; state.codeError = false; go('code'); return; }
+    if (act === 'gate-back') { state.mode = 'client'; go('home'); return; }
+    if (act === 'logout') { state.mode = 'client'; state.coachId = null; go('home'); return; }
+
+    if (act === 'goto-book') { go('book'); }
+    else if (act === 'goto-prices') { go('prices'); }
+    else if (act === 'goto-history') { go('history'); }
+    else if (act === 'back-home') { go('home'); }
+    else if (act === 'trainer-focus') {
+      state.picking = true; renderHome();
+      var b = document.getElementById('trainer-block'); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    else if (act === 'bell') { toast(remindText()); }
+    else if (act === 'type') { state.type = v; state.time = null; renderBook(); }
+    else if (act === 'pick-toggle') { state.picking = !state.picking; renderHome(); }
+    else if (act === 'trainer') {
+      state.trainerId = v; state.picking = false; state.time = null; state.raceInfo = null;
+      var types = tr(v).types;
+      if (types.indexOf(state.type) < 0) state.type = types[0];
+      renderAll(); toast('Ваш тренер: ' + tr(v).name);
+    }
+    else if (act === 'day') { state.day = parseInt(v, 10); state.time = null; state.raceInfo = null; renderBook(); }
+    else if (act === 'time') { state.time = v; state.raceInfo = null; renderBook(); }
+    else if (act === 'alt') { state.time = v; state.raceInfo = null; renderBook(); }
+    else if (act === 'remind') { state.remind = v; renderHome(); }
+    else if (act === 'filter') { state.filter = v; renderHistory(); }
+    else if (act === 'move') {
+      var mb = state.bookings[idx]; state.moving = idx; state.trainerId = mb.trainer; state.type = mb.type; state.time = null; state.cancelling = null;
+      go('book');
+    }
+    else if (act === 'move-cancel') { state.moving = null; renderAll(); }
+    else if (act === 'book') {
+      if (state.race) {
+        state.race = false;
+        var rdk = key(addDays(today, state.day));
+        state.taken[state.trainerId + '|' + rdk + '|' + state.time] = true;
+        state.raceInfo = { trainer: state.trainerId, date: rdk, time: state.time };
+        state.time = null; renderBook(); el.main.scrollTop = 0;
+        return;
+      }
+      var d = addDays(today, state.day), nb = { date: key(d), time: state.time, type: state.type, trainer: state.trainerId }, msg;
+      if (state.moving !== null) { state.bookings[state.moving] = nb; state.moving = null; msg = 'Тренування перенесено: ' + fmt(d) + ', ' + state.time; }
+      else { state.bookings.push(nb); state.justBooked = true; msg = 'Записано: ' + fmt(d) + ', ' + state.time + (state.remind === 'off' ? '' : '. Нагадаю в Telegram.'); }
+      state.time = null; state.tab = 'home';
+      renderAll(); el.main.scrollTop = 0; toast(msg);
+    }
+    else if (act === 'cancel-ask') { state.cancelling = idx; renderHome(); renderHistory(); }
+    else if (act === 'cancel-no') { state.cancelling = null; renderHome(); renderHistory(); }
+    else if (act === 'cancel-yes') {
+      state.bookings.splice(idx, 1); state.cancelling = null; state.moving = null;
+      renderAll(); toast('Запис скасовано. Тренування повернулось на баланс.');
+    }
+    else if (act === 'buy-ask') { state.buying = idx; renderPrices(); }
+    else if (act === 'buy-no') { state.buying = null; renderPrices(); }
+    else if (act === 'buy-yes') {
+      var p = PACKS[idx];
+      state.total += p.n;
+      var until = addDays(today, p.days);
+      if (until > state.expires) state.expires = until;
+      state.payments.unshift({ who: ME, what: 'Пакет, ' + p.n + ' тренувань', sum: p.price, ago: 0, trainer: state.trainerId });
+      state.buying = null; state.tab = 'home';
+      renderAll(); el.main.scrollTop = 0;
+      toast('Пакет куплено. Додано ' + p.n + ' ' + plural(p.n, 'тренування', 'тренування', 'тренувань') + '.');
+    }
+    else if (state.coachId) {
+      var id = state.coachId, s = sch(id), cd = addDays(today, state.cday), ck = key(cd);
+      if (act === 'c-day') { state.cday = parseInt(v, 10); renderCSchedule(); }
+      else if (act === 'c-slot') {
+        var t = a.getAttribute('data-t'), arr = s.closed[ck] || [], i = arr.indexOf(t);
+        if (i >= 0) { arr.splice(i, 1); toast('Час відкрито: клієнти його бачать'); } else { arr.push(t); toast('Час закрито: клієнти його не бачать'); }
+        s.closed[ck] = arr; renderCSchedule(); renderCHours();
+      }
+      else if (act === 'c-day-all') {
+        var arr2 = s.closed[ck] || [], st = dayStats(id, cd);
+        if (st.free > 0) { slotsOf(id, cd).forEach(function (x) { if (statusOf(id, cd, x) === 'free') arr2.push(x); }); toast('Весь вільний час закрито'); }
+        else { arr2 = []; toast('Закритий час відкрито'); }
+        s.closed[ck] = arr2; renderCSchedule(); renderCHours();
+      }
+      else if (act === 'c-day-off') { if (s.off.indexOf(ck) < 0) s.off.push(ck); toast('День позначено вихідним'); renderCSchedule(); renderCHours(); }
+      else if (act === 'c-day-on') { s.off = s.off.filter(function (x) { return x !== ck; }); toast('День знову робочий'); renderCSchedule(); renderCHours(); }
+      else if (act === 'c-day-extra') { s.tpl[cd.getDay()].on = true; toast('Цей день тепер робочий щотижня'); renderAll(); }
+      else if (act === 'c-tpl-toggle') { var n = parseInt(a.getAttribute('data-d'), 10); s.tpl[n].on = !s.tpl[n].on; renderAll(); }
+      else if (act === 'c-slotmin') { s.slotMin = parseInt(v, 10); s.closed = {}; renderAll(); toast('Тривалість змінено. Ручні закриття скинуто.'); }
+      else if (act === 'c-off-remove') { var kk = a.getAttribute('data-k'); s.off = s.off.filter(function (x) { return x !== kk; }); renderAll(); }
+      else if (act === 'c-off-add') {
+        var sel = document.getElementById('off-add');
+        if (sel && sel.value) { s.off.push(sel.value); renderAll(); toast('Вихідний додано'); }
+      }
+    }
+  });
+
+  renderAll();
+})();
+</script>
